@@ -1,0 +1,10 @@
+Rules: // To start off with
+1. Program is started with {
+2. Program ends with }
+3. Instantiation: (keyword) (identifier) = (value) *var myVar = 32
+4. Shall support basic arithmetic: +, -, /, *, %
+5. Shall support basc comparison: >, <, >=, <=, ==, !=
+6. Support if and else statements
+7. Support strings, integers, and booleans
+
+//TODO consider adding loops
