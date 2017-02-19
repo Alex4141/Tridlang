@@ -5,16 +5,36 @@
 
 
 function Tokenizer(StreamObject){
-	
+	var keywords = " if then else true false";
+	var TokenStream = [];
 
-	// Utils
+	// The Main Functions
+	
+	Tokenizer.prototype.getNextChar = function(){
+		while(!StreamObject.eof()){
+			var currentChar = StreamObject.peek();
+			this.characterHandler(currentChar);
+		}
+	};
+
+	Tokenizer.prototype.characterHandler = function(ch){
+		if isWhitespace(ch) { return; }
+		if (ch == '"') { return this.getString(); }
+		if (this.isDigit(ch) { return this.getNumber(); }
+		// Continue with handler
+	};
+
+	// Utility Functions
+
+	Tokenizer.prototype.startOfExp = function(){
+	};
 
 	Tokenizer.prototype.startOfExp = function(ch){
 		return /[{]/.test(ch);
 	};
 	
 	Tokenizer.prototype.endOfExp = function(ch){
-		return/[}].test(ch);
+		return/[}]/.test(ch);
 	};
 
 	Tokenizer.prototype.isOperator = function(ch){
@@ -29,13 +49,20 @@ function Tokenizer(StreamObject){
 		return /[a-zA-Z_]/.test(ch);
 	};
 
+	Tokenizer.prototype.isKeyword = function(word){
+		return keywords.includes(word);
+	};
+
 	Tokenizer.prototype.getNumber = function(){
 		var result = "";
 		while(Tokenizer.isDigit(StreamObject.peek())){
 			result += StreamObject.peek();
 			StreamObject.next();
 		}
-		return result;
+		return {
+			"type" : "Number",
+			"value" : result
+		};
 	};
 	
 	Tokenizer.prototype.getString = function(){
@@ -49,7 +76,10 @@ function Tokenizer(StreamObject){
 				result += current;
 			}		
 		}
-		return result;
+		return {
+			"type" : "String",
+			"value" : result
+		};
 	};
 
 	Tokenizer.prototype.getOperator = function(){
@@ -58,10 +88,23 @@ function Tokenizer(StreamObject){
 			result += StreamObject.peek();
 			StreamObject.next();
 		}
-		return result;
+		return {
+			"type" : "Operator",
+			"value" : result
+		};
 	};
 	
-	// Add a getIdentifier	
+	Tokenizer.prototype.getIdentifier = function(){
+		var result = "";
+		while(Tokenizer.isIdentifier(StreamObject.peek())){
+			result += StreamObject.peek();
+			StreamObject.next();
+		}
+		return {
+			"type": this.isKeyword(result) ? "Keyword" : "Variable",
+			"value": result
+		}
+	};
 	
 	Tokenizer.prototype.isWhitespace = function(ch) {
 		return /\s/.test(ch);
@@ -70,5 +113,5 @@ function Tokenizer(StreamObject){
 
 module.export = Tokenizer;
 
-var t = new Tokenizer("dfffd");
-console.log(t.isDigit('9'));
+var t = new Tokenizer("d\"ff\"flld");
+console.log(t.isKeyword('true'));
