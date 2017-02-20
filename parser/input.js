@@ -4,7 +4,7 @@ Stream Object implementation
 */
 
 function Stream(input){
-	var position = 0;
+	var position = -1;
 	
 	Stream.prototype.next = function(){
 		return input.charAt(position++);
