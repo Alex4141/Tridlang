@@ -5,6 +5,7 @@
 
 
 function Tokenizer(StreamObject){
+	// TODO modify all the getters to end in a new function that adds to the Token Stream
 	var keywords = " if then else true false";
 	var TokenStream = [];
 
@@ -16,13 +17,20 @@ function Tokenizer(StreamObject){
 			this.characterHandler(currentChar);
 		}
 	};
-
+	
 	Tokenizer.prototype.characterHandler = function(ch){
-		if isWhitespace(ch) { return; }
+		if (this.isWhitespace(ch)) { return; }
 		if (ch == '"') { return this.getString(); }
-		if (this.isDigit(ch) { return this.getNumber(); }
-		// Continue with handler
+		if (this.isDigit(ch)) { return this.getNumber(); }
+		if (this.startOfExp(ch) || this.endOfExp(ch)){ return this.getBracket();  }
+		if(this.isIdentifier(ch)) { return this.getIdentifier(); }
+		if(this.isOperator(ch)) { return this.getOperator(); }
 	};
+
+	/*
+	 * Tokenizer.prototype.TokenAppender = function(){
+	 * };
+	 */ 
 
 	// Utility Functions
 
@@ -106,12 +114,28 @@ function Tokenizer(StreamObject){
 		}
 	};
 	
+	Tokenizer.prototype.getBracket = function(){
+		var bracket = StreamObject.peek();
+		if(bracket == '}'){
+			return {
+				"type" : "StartOfExpression",
+				"value" : bracket
+			};
+		} else {
+			return {
+				"type" : "EndOfExpression",
+				"value" : bracket
+			};
+		}
+	};
+
 	Tokenizer.prototype.isWhitespace = function(ch) {
 		return /\s/.test(ch);
 	};
+
 };
 
 module.export = Tokenizer;
 
 var t = new Tokenizer("d\"ff\"flld");
-console.log(t.isKeyword('true'));
+console.log(t.isWhitespace("\t\n"));
