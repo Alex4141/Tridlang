@@ -5,20 +5,21 @@
 
 
 function Tokenizer(StreamObject){
-	var keywords = " if then else true false";
+	var keywords = ["if", "then", "else", "true", "false"];
 	var tokenStream = [];
 
 	// The Main Functions
 	
 	Tokenizer.prototype.getNextChar = function(){
 		while(!StreamObject.eof()){
-			var currentChar = StreamObject.next();
+			var currentChar = StreamObject.peek();
 			this.characterHandler(currentChar);
+			StreamObject.next();
 		}
 	};
 	
 	Tokenizer.prototype.characterHandler = function(ch){
-		if (this.isWhitespace(ch)) { return this.clearWhitespace(); }
+		if (this.isWhitespace(ch)) { return; }
 		if (ch == '"') { return this.getString(); }
 		if (this.isDigit(ch)) { return this.getNumber(); }
 		if (this.startOfExp(ch) || this.endOfExp(ch)){ return this.getBracket();  }
@@ -41,25 +42,15 @@ function Tokenizer(StreamObject){
 		return /\s/.test(ch);
 	};
 
-	Tokenizer.prototype.clearWhitespace = function(){
-		var ch = StreamObject.peek();
-		while(/\s/.test(ch)){
-			ch = StreamObject.next();
-		}
-	};
-
 	Tokenizer.prototype.getString = function(){
 		var result = "";
-		while(!StreamObject.eof()){
-			var current = StreamObject.next();
-			if(current == '"'){
-				break;
-			} else {
-				result += current;
-			}		
+		StreamObject.next();
+		while(StreamObject.peek() != '"'){
+			result += StreamObject.peek();
+			StreamObject.next();
 		}
 
-		return appendToken({
+		return this.appendToken({
 			"type" : "String",
 			"value" : result
 		});
@@ -71,11 +62,11 @@ function Tokenizer(StreamObject){
 
 	Tokenizer.prototype.getNumber = function(){
 		var result = "";
-		while(Tokenizer.isDigit(StreamObject.peek())){
+		while(this.isDigit(StreamObject.peek())){
 			result += StreamObject.peek();
 			StreamObject.next();
 		}
-		return appendToken({
+		return this.appendToken({
 			"type" : "Number",
 			"value" : result
 		});
@@ -91,13 +82,13 @@ function Tokenizer(StreamObject){
 
 	Tokenizer.prototype.getBracket = function(){
 		var bracket = StreamObject.peek();
-		if(bracket == '}'){
-			return appendToken({
+		if(bracket == '{'){
+			return this.appendToken({
 				"type" : "StartOfExpression",
 				"value" : bracket
 			});
 		} else {
-			return appendToken({
+			return this.appendToken({
 				"type" : "EndOfExpression",
 				"value" : bracket
 			});
@@ -110,18 +101,18 @@ function Tokenizer(StreamObject){
 
 	Tokenizer.prototype.getIdentifier = function(){
 		var result = "";
-		while(Tokenizer.isIdentifier(StreamObject.peek())){
+		while(this.isIdentifier(StreamObject.peek())){
 			result += StreamObject.peek();
 			StreamObject.next();
 		}
-		return appendToken({
+		return this.appendToken({
 			"type": this.isKeyword(result) ? "Keyword" : "Variable",
 			"value": result
 		});
 	};
 
 	Tokenizer.prototype.isKeyword = function(word){
-		return keywords.includes(word);
+		return keywords.indexOf(word) > -1;
 	};
 
 	Tokenizer.prototype.isOperator = function(ch){
@@ -130,11 +121,11 @@ function Tokenizer(StreamObject){
 
 	Tokenizer.prototype.getOperator = function(){
 		var result = "";
-		while(Tokenizer.isOperator(StreamObject.peek())){
+		while(this.isOperator(StreamObject.peek())){
 			result += StreamObject.peek();
 			StreamObject.next();
 		}
-		return appendToken({
+		return this.appendToken({
 			"type" : "Operator",
 			"value" : result
 		});
@@ -142,3 +133,10 @@ function Tokenizer(StreamObject){
 };
 
 module.export = Tokenizer;
+
+var s = require("./input.js");
+
+var str = new s('"big" "meaty" "claws"99 9 var if = 9');
+var tok = new Tokenizer(str);
+tok.getNextChar();
+console.log(tok.getTokenStream());
