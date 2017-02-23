@@ -7,4 +7,11 @@ Rules: // To start off with
 6. Support if and else statements
 7. Support strings, integers, and booleans
 
-//TODO consider adding loops
+
+Production Rules
+
+Prgrm -> { C }
+C -> (C) |
+
+<type> -> 'int' | 'string' | 'bool'
+<

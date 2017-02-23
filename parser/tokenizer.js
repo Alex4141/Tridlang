@@ -25,6 +25,7 @@ function Tokenizer(StreamObject){
 		if (this.startOfExp(ch) || this.endOfExp(ch)){ return this.getBracket();  }
 		if(this.isIdentifier(ch)) { return this.getIdentifier(); }
 		if(this.isOperator(ch)) { return this.getOperator(); }
+		if(this.isPunc(ch)) { return this.getPunc();}
 		throw "Parser Error: character " + ch + " is not valid";
 	};
 
@@ -112,7 +113,7 @@ function Tokenizer(StreamObject){
 	};
 
 	Tokenizer.prototype.isKeyword = function(word){
-		return keywords.indexOf(word) > -1;
+		return keywords.indexOf(" " + word + " ") >= 0;
 	};
 
 	Tokenizer.prototype.isOperator = function(ch){
@@ -130,13 +131,17 @@ function Tokenizer(StreamObject){
 			"value" : result
 		});
 	};
+
+	Tokenizer.prototype.isPunc = function(ch){
+		return "()".indexOf(ch) >= 0;
+	};
+
+	Tokenizer.prototype.getPunc = function(){
+		return this.appendToken({
+			"type" : "Punctuation",
+			"value" : StreamObject.peek()
+		});
+	};
 };
 
 module.export = Tokenizer;
-
-var s = require("./input.js");
-
-var str = new s('"big" "meaty" "claws"99 9 var if = 9');
-var tok = new Tokenizer(str);
-tok.getNextChar();
-console.log(tok.getTokenStream());
