@@ -6,6 +6,8 @@
 
 function Tokenizer(StreamObject){
 	var keywords = ["if", "then", "else", "true", "false"];
+	var operators = ['+', '-', '/', '*', '>', '<', '>=', '<=', '=', '==', '!='];
+	
 	var tokenStream = [];
 
 	// The Main Functions
@@ -63,10 +65,13 @@ function Tokenizer(StreamObject){
 
 	Tokenizer.prototype.getNumber = function(){
 		var result = "";
-		while(this.isDigit(StreamObject.peek())){
+		while(!StreamObject.eof() && this.isDigit(StreamObject.lookahead())){
 			result += StreamObject.peek();
 			StreamObject.next();
 		}
+		
+		result += StreamObject.peek();
+
 		return this.appendToken({
 			"type" : "Number",
 			"value" : result
@@ -102,10 +107,13 @@ function Tokenizer(StreamObject){
 
 	Tokenizer.prototype.getIdentifier = function(){
 		var result = "";
-		while(this.isIdentifier(StreamObject.peek())){
+		while(!StreamObject.eof() && this.isIdentifier(StreamObject.lookahead())){
 			result += StreamObject.peek();
 			StreamObject.next();
 		}
+
+		result += StreamObject.peek();		
+
 		return this.appendToken({
 			"type": this.isKeyword(result) ? "Keyword" : "Variable",
 			"value": result
@@ -113,7 +121,7 @@ function Tokenizer(StreamObject){
 	};
 
 	Tokenizer.prototype.isKeyword = function(word){
-		return keywords.indexOf(" " + word + " ") >= 0;
+		return keywords.indexOf(word) >= 0;
 	};
 
 	Tokenizer.prototype.isOperator = function(ch){
@@ -122,14 +130,18 @@ function Tokenizer(StreamObject){
 
 	Tokenizer.prototype.getOperator = function(){
 		var result = "";
-		while(this.isOperator(StreamObject.peek())){
+		while(!StreamObject.eof() && this.isOperator(StreamObject.lookahead())){
 			result += StreamObject.peek();
 			StreamObject.next();
 		}
-		return this.appendToken({
-			"type" : "Operator",
-			"value" : result
-		});
+		result += StreamObject.peek();
+		
+		if(operators.indexOf(result) > -1){
+			return this.appendToken({
+				"type" : "Operator",
+				"value" : result
+			});
+		}
 	};
 
 	Tokenizer.prototype.isPunc = function(ch){

@@ -6,14 +6,19 @@
 
 function Parser(tokenStream){
 
-	Parser.prototype.constructTree = function(){
-		for(var i = 0; i < tokenStream.length; i++){
-			
+	var pos = -1;
+	var currentToken = this.getToken();
+
+	// Utility Functions to handle Token Stream
+
+	Parser.prototype.advanceToken = function(){
+		if(!this.tokenEof()){
+			currentToken = tokenStream[pos++];
 		}
 	};
 
-	Parser.prototype.getLookahead = function(i){
-		return tokenStream[i++];
+	Parser.prototype.tokenEof = function(){
+		return pos >= tokenStream.length;
 	};
 
 }

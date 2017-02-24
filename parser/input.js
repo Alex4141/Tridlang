@@ -17,6 +17,10 @@ function Stream(input){
 	Stream.prototype.eof = function(){
 		return this.peek() == "";
 	};
+
+	Stream.prototype.lookahead = function(){
+		return input.charAt(position + 1);
+	};
 }
 
 module.exports = Stream;
