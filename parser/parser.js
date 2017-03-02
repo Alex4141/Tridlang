@@ -5,63 +5,38 @@
  */
 
 function Parser(tokenStream){
-
+	
 	var pos = -1;
-	var currentToken = this.getToken();
-	
-	// Main Functions to parse the Tokens
-	
-	// Utility Functions to handle Parser
-	
-	Parser.prototype.parseIfStatment = function(){
-		this.skipKeyWord("if");
-		this.skipOperator('(');
-		var exp = parseExpression();
-		// TODO Finish Parse Expression 
-	};
+	var currentToken = this.advanceToken();	
+	var errorState = false;
 
-	Parser.prototype.parseExpression = function(){
-		// Write individual parse function
-		return 
-	};
-
-	Parser.prototype.isKeyword = function(value){
-		return current.type == "Keyword" && current.value == value;
-	};
-
-	Parser.prototype.skipKeyword = function(value){
-		if(this.isKeyword(value)){ this.advanceToken(); }
-		else { throw "Syntax Error"; }
-	};
-
-	Parser.prototype.isPunctuation = function(value){
-		return current.type == "Punctuation" && current.value == value;
-	};
-
-	Parser.prototype.skipPunctuation = function(value){
-		if(this.isPunctuation(value)) { this.advanceToken(); }
-		else { throw "Syntax Error"; }
-	};
-
-	Parser.prototype.isOperator = function(value){
-		return current.type == "Operator" && current.value == value;
-	};
-
-	Parser.prototype.skipOperator = function(value){
-		if(this.isOperator(value)) { this.advanceToken(); }
-		else { throw "Syntax Error" }
-	};
-
-	// Utility Functions to handle Token Stream
-
-	Parser.prototype.advanceToken = function(){
-		if(!this.tokenEof()){
-			currentToken = tokenStream[pos++];
+	Parser.prototype.parse = function(){
+		if(currentToken.type == "StartOfExpression"){
+			this.parseStatement();
+			if(currentToken.type == "EndOfExpression"){
+				//Correct Semantics
+			} else {
+				this.throwError(currentToken);
+			}
+		}else{
+			this.throwError(currentToken);
 		}
 	};
+	
+	Parser.prototype.parseStatement = function(){
+	}
 
-	Parser.prototype.tokenEof = function(){
-		return pos >= tokenStream.length;
+	Parser.prototype.advanceToken = function(){
+		pos++;
+		this.getToken();
+	};
+
+	Parser.prototype.getToken = function(){
+		return tokenStream[pos]
+	};
+
+	Parser.prototype.throwError = function(token){
+		throw "Illegal Expression! Got: " + token.type;	
 	};
 
 }
